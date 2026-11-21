@@ -4,3 +4,8 @@
 *.log
 .DS_Store
 .autoclaw
+# v2: QA workdir + generated assets (rebuild via build/make_test_assets.py)
+qa/out/
+qa/assets/
+build/frames/
+pro/__pycache__/

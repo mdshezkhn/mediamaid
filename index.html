@@ -4,11 +4,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Gemini Watermark Remover &amp; Logo Remover – Free Video &amp; Image Tool</title>
+  <title>AI Watermark Remover — Gemini, Veo, Sora, Kling, Grok &amp; Any Logo | Free</title>
   <meta name="description"
-    content="Free Gemini watermark remover &amp; logo remover. Remove Google Gemini watermark from video and AI images online with zero blur, no sign-up, and original quality." />
+    content="Free universal AI watermark remover. Remove Gemini, Veo, Sora, Kling, Grok, Hailuo, Luma, Runway, PixVerse and any custom watermark from images and videos — in your browser, zero upload, original quality." />
   <meta name="keywords"
-    content="gemini watermark remover, gemini logo remover, remove gemini watermark, gemini watermark remover video, gemini video watermark remover, gemini watermark remover free, remove gemini watermark from video, gemini remove watermark, gemini logo remover from video, remove watermark gemini, google flow watermark remover, gemini omni watermark remover, nano banana watermark remover, veo 3 watermark remover" />
+    content="watermark remover, ai watermark remover, gemini watermark remover, veo watermark remover, sora watermark remover, kling watermark remover, grok imagine watermark remover, hailuo watermark remover, luma watermark remover, runway watermark remover, remove tiktok watermark, remove capcut watermark, logo remover, video watermark remover, image watermark remover" />
   <meta name="robots" content="index, follow" />
   <meta name="author" content="Ishara M." />
   <meta name="theme-color" content="#ffffff" />
@@ -16,13 +16,13 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="Gemini Remover" />
   <link rel="icon" type="image/png"
-    href="https://ishara-madu.github.io/gemini-watermark-remover/assets/favicon-96x96.png" sizes="96x96" />
+    href="./assets/favicon-96x96.png" sizes="96x96" />
   <link rel="icon" type="image/svg+xml"
-    href="https://ishara-madu.github.io/gemini-watermark-remover/assets/favicon.svg" />
-  <link rel="shortcut icon" href="https://ishara-madu.github.io/gemini-watermark-remover/assets/favicon.ico" />
+    href="./assets/favicon.svg" />
+  <link rel="shortcut icon" href="./assets/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180"
-    href="https://ishara-madu.github.io/gemini-watermark-remover/assets/apple-touch-icon.png" />
-  <link rel="manifest" href="https://ishara-madu.github.io/gemini-watermark-remover/assets/site.webmanifest" />
+    href="./assets/apple-touch-icon.png" />
+  <link rel="manifest" href="./assets/site.webmanifest" />
 
   <link rel="canonical" href="https://ishara-madu.github.io/gemini-watermark-remover/" />
 
@@ -418,7 +418,7 @@
   <main class="container">
     <!-- Hero Section -->
     <div class="hero-section">
-      <h1 class="hero-title">Free Gemini Watermark Remover &amp; Logo Remover</h1>
+      <h1 class="hero-title">Universal AI Watermark Remover — Gemini, Veo, Sora &amp; Any Logo</h1>
       <p class="hero-description">
         The fastest way to <strong>remove Gemini watermark from video</strong> and AI images online. Our 100% free
         <strong>Google Gemini watermark remover</strong> cleanly unblends logos frame-by-frame with zero blur, no
@@ -471,7 +471,7 @@
         <div class="dropzone-icon">
           <iconify-icon icon="ph:upload-simple-bold"></iconify-icon>
         </div>
-        <p class="dropzone-title">Upload or drag your Gemini or Nano Banana Image</p>
+        <p class="dropzone-title">Upload or drag any image</p>
         <p class="dropzone-sub">Supports PNG, JPG, WebP</p>
         <input id="img-input" type="file" accept="image/*" class="hidden" />
       </div>
@@ -508,6 +508,7 @@
             </span>
             <div class="canvas-wrapper">
               <canvas id="img-main-canvas"></canvas>
+                <p class="drag-hint hidden" id="img-drag-hint">💡 Drag on the preview to box ANY watermark — works for every logo, text or caption.</p>
             </div>
           </div>
           <div class="tuner-canvas-box zoom-box">
@@ -537,10 +538,22 @@
           <span class="tuner-preset-label">Model Preset:</span>
           <div class="tuner-preset-buttons">
             <button type="button" class="btn-preset active" data-preset="new" id="btn-preset-img-nano">
-              <iconify-icon icon="ph:sparkle-bold"></iconify-icon> Gemini / Nano Banana (Adaptive)
+              <iconify-icon icon="ph:sparkle-bold"></iconify-icon> Gemini / Nano Banana
             </button>
             <button type="button" class="btn-preset" data-preset="classic" id="btn-preset-img-classic">
-              <iconify-icon icon="ph:corners-out"></iconify-icon> Classic Corner (Fixed)
+              <iconify-icon icon="ph:corners-out"></iconify-icon> Gemini (Classic)
+            </button>
+            <button type="button" class="btn-preset" data-preset="sora" id="btn-preset-img-sora">
+              <iconify-icon icon="ph:planet-bold"></iconify-icon> Sora
+            </button>
+            <button type="button" class="btn-preset" data-preset="grok" id="btn-preset-img-grok">
+              <iconify-icon icon="ph:rocket-bold"></iconify-icon> Grok Imagine
+            </button>
+            <button type="button" class="btn-preset" data-preset="caption" id="btn-preset-img-caption">
+              <iconify-icon icon="ph:subtitle-bold"></iconify-icon> TikTok / CapCut bar
+            </button>
+            <button type="button" class="btn-preset" data-preset="custom" id="btn-preset-img-custom">
+              <iconify-icon icon="ph:hand-grabbing-bold"></iconify-icon> Custom (drag a box)
             </button>
           </div>
         </div>
@@ -598,7 +611,7 @@
         <div class="dropzone-icon">
           <iconify-icon icon="ph:video-bold"></iconify-icon>
         </div>
-        <p class="dropzone-title">Upload or drag a Gemini Omni, Google Flow, or Veo video</p>
+        <p class="dropzone-title">Upload or drag any video</p>
         <p class="dropzone-sub">Supports MP4, WebM, MOV</p>
         <input id="video-input" type="file" accept="video/*" class="hidden" />
       </div>
@@ -635,6 +648,7 @@
             </span>
             <div class="canvas-wrapper">
               <canvas id="video-main-canvas"></canvas>
+                <p class="drag-hint hidden" id="video-drag-hint">💡 Drag on the preview to box ANY watermark — works for every logo, text or caption.</p>
             </div>
           </div>
           <div class="tuner-canvas-box zoom-box">
@@ -664,7 +678,7 @@
           <span class="tuner-preset-label">Model Preset:</span>
           <div class="tuner-preset-buttons">
             <button type="button" class="btn-preset active" data-preset="veo" id="btn-preset-vid-omni">
-              <iconify-icon icon="ph:video-camera-bold"></iconify-icon> Gemini Omni &amp; Flow (Adaptive)
+              <iconify-icon icon="ph:video-camera-bold"></iconify-icon> Veo / Flow (Adaptive)
             </button>
             <button type="button" class="btn-preset" data-preset="corner" id="btn-preset-vid-veo">
               <iconify-icon icon="ph:corners-out"></iconify-icon> Veo (Corner)
@@ -672,7 +686,46 @@
             <button type="button" class="btn-preset" data-preset="sparkle" id="btn-preset-vid-sparkle">
               <iconify-icon icon="ph:sparkle-bold"></iconify-icon> Standard Sparkle
             </button>
+            <button type="button" class="btn-preset" data-preset="sora" id="btn-preset-vid-sora">
+              <iconify-icon icon="ph:planet-bold"></iconify-icon> Sora
+            </button>
+            <button type="button" class="btn-preset" data-preset="kling" id="btn-preset-vid-kling">
+              <iconify-icon icon="ph:video-bold"></iconify-icon> Kling AI
+            </button>
+            <button type="button" class="btn-preset" data-preset="grok" id="btn-preset-vid-grok">
+              <iconify-icon icon="ph:rocket-bold"></iconify-icon> Grok Imagine
+            </button>
+            <button type="button" class="btn-preset" data-preset="hailuo" id="btn-preset-vid-hailuo">
+              <iconify-icon icon="ph:waves-bold"></iconify-icon> Hailuo / MiniMax
+            </button>
+            <button type="button" class="btn-preset" data-preset="luma" id="btn-preset-vid-luma">
+              <iconify-icon icon="ph:moon-stars-bold"></iconify-icon> Luma
+            </button>
+            <button type="button" class="btn-preset" data-preset="runway" id="btn-preset-vid-runway">
+              <iconify-icon icon="ph:film-strip-bold"></iconify-icon> Runway
+            </button>
+            <button type="button" class="btn-preset" data-preset="pixverse" id="btn-preset-vid-pixverse">
+              <iconify-icon icon="ph:images-bold"></iconify-icon> PixVerse
+            </button>
+            <button type="button" class="btn-preset" data-preset="caption" id="btn-preset-vid-caption">
+              <iconify-icon icon="ph:subtitle-bold"></iconify-icon> TikTok / CapCut bar
+            </button>
+            <button type="button" class="btn-preset" data-preset="custom" id="btn-preset-vid-custom">
+              <iconify-icon icon="ph:hand-grabbing-bold"></iconify-icon> Custom (drag a box)
+            </button>
           </div>
+        </div>
+
+        <div class="tuner-sliders</div>
+        </div>
+
+        <div class="tuner-sliders</div>
+        </div>
+
+        <div class="tuner-sliders</div>
+        </div>
+
+        <div class="tuner-sliders</div>
         </div>
 
         <div class="tuner-sliders mt-2">
@@ -1412,7 +1465,22 @@
     </footer>
   </main>
 
+  <!-- v2: offline-safe GitHub API guard (installed before main.js) -->
+  <script>
+  (function () {
+    var _f = window.fetch && window.fetch.bind(window);
+    if (!_f) return;
+    window.fetch = function (input, init) {
+      var url = typeof input === 'string' ? input : (input && input.url) || '';
+      if (url.indexOf('api.github.com') !== -1) {
+        return Promise.resolve(new Response('', { status: 204, statusText: 'offline' }));
+      }
+      return _f(input, init);
+    };
+  })();
+  </script>
   <script src="./main.js"></script>
+  <script src="./universal.js"></script>
   <!-- BuyMeACoffee Widget (Lazy Loaded for Optimal Core Web Vitals) -->
   <script>
     (function () {
