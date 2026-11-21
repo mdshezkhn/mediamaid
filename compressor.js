@@ -504,7 +504,9 @@ window.MediaMaid = MM;
     if (item.out) meta += ` → <b>${fmtBytes(item.out.size)}</b>`;
     const status =
       item.status === 'queued' ? 'Waiting…' :
-      item.status === 'working' ? `${item.stage === 'refining' ? 'Refining' : 'Compressing'} ${Math.round(item.prog * 100)}%` :
+      item.status === 'working' ? (item.prog
+        ? `${item.stage === 'refining' ? 'Refining' : 'Compressing'} ${Math.round(item.prog * 100)}%`
+        : 'Reading video…') :
       item.status === 'done' ? 'Done' :
       item.status === 'error' ? 'Failed' : '';
     const bar = item.status === 'done' ? 100 : Math.round((item.prog || 0) * 100);
@@ -552,12 +554,19 @@ window.MediaMaid = MM;
   function addFiles(kind, files) {
     const list = kind === 'video' ? state.vQueue : state.iQueue;
     const accept = kind === 'video' ? /^video\// : /^image\//;
+    let added = 0;
     for (const f of files) {
       if (!accept.test(f.type) && !/\.(mp4|webm|mov|m4v|mkv|avi|png|jpe?g|webp|gif|bmp)$/i.test(f.name)) continue;
-      list.push({ file: f, status: 'queued', prog: 0, stage: '', out: null, err: '' });
+      list.push({ file: f, status: 'queued', prog: 0, stage: '', out: null, err: '', t0: 0 });
+      added++;
     }
     renderQueue(kind);
     if (kind === 'video') targetHint();
+    // auto-start like cloud compressors — picking files IS starting the job
+    if (added) {
+      const runningKey = kind === 'video' ? 'vRunning' : 'iRunning';
+      if (!state[runningKey]) runQueue(kind);
+    }
   }
 
   // ── settings readers ─────────────────────────────────────────────────────
@@ -598,6 +607,7 @@ window.MediaMaid = MM;
         const item = list[i];
         if (item.status !== 'queued' && item.status !== 'error') continue;
         item.status = 'working'; item.prog = 0; item.stage = ''; item.err = '';
+        item.t0 = performance.now();
         renderQueue(kind);
         try {
           const onProg = (p, stage) => {
@@ -605,8 +615,13 @@ window.MediaMaid = MM;
             const card = document.querySelector(`.mm-file[data-i="${i}"][data-kind="${kind}"]`);
             if (card) {
               card.querySelector('.mm-bar-fill').style.width = Math.round(item.prog * 100) + '%';
-              card.querySelector('.mm-status').textContent =
-                `${item.stage === 'refining' ? 'Refining' : 'Compressing'} ${Math.round(item.prog * 100)}%`;
+              let txt = `${item.stage === 'refining' ? 'Refining' : 'Compressing'} ${Math.round(item.prog * 100)}%`;
+              const el = (performance.now() - item.t0) / 1000;
+              if (item.prog > 0.03 && el > 8) {
+                const eta = Math.round(el * (1 - item.prog) / item.prog);
+                txt += eta >= 60 ? ` · ~${Math.max(1, Math.round(eta / 60))} min left` : ` · ~${Math.max(1, eta)}s left`;
+              }
+              card.querySelector('.mm-status').textContent = txt;
             }
           };
           if (kind === 'video') {
