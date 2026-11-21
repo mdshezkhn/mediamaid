@@ -745,6 +745,7 @@ window.MediaMaid = MM;
     wireDropzone('mmi-dropzone', 'mmi-input', 'image');
     wireEvents();
     updateSummary('video'); updateSummary('image');
+    window.MediaMaidInitDone = true;  // watchdog: proves init ran to completion
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
   else init();

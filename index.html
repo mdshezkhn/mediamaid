@@ -796,6 +796,7 @@
 
     <!-- MediaMaid v3: Video Compressor -->
     <section id="panel-compress-video" class="card hidden">
+      <p class="mm-note" id="mmv-panel-note" hidden>⚠ This browser has no WebCodecs support — video compression needs Chrome or Edge. Removing watermarks still works.</p>
       <div id="mmv-dropzone" class="dropzone">
         <div class="dropzone-icon"><iconify-icon icon="ph:arrows-in-bold"></iconify-icon></div>
         <p class="dropzone-title">Upload or drag videos to compress</p>
@@ -1647,6 +1648,53 @@
   <script src="./main.js"></script>
   <script src="./universal.js"></script>
   <script src="./compressor.js"></script>
+  <script>
+/* MediaMaid watchdog — surfaces every failure so nothing dies silently */
+(function () {
+  var seen = 0;
+  function banner(msg, kind) {
+    var b = document.getElementById('mm-watchdog');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'mm-watchdog';
+      b.style.cssText = 'position:fixed;z-index:99999;left:12px;right:12px;top:12px;max-width:720px;margin:auto;'
+        + 'padding:12px 16px;border-radius:12px;font:13px/1.5 system-ui,sans-serif;color:#fff;'
+        + 'box-shadow:0 8px 30px rgba(0,0,0,.35);cursor:pointer';
+      document.body ? document.body.appendChild(b) : document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(b); });
+      b.onclick = function () { b.remove(); };
+    }
+    b.style.background = kind === 'warn' ? '#b45309' : '#b91c1c';
+    b.textContent = msg;
+    seen++;
+  }
+  window.__mmBanner = banner;
+  window.addEventListener('error', function (e) {
+    var src = (e.target && e.target.src) || e.filename || '';
+    if (src && src.indexOf('extension') > -1) return;
+    if (e.target && e.target.tagName === 'IMG' && !e.filename) return; // broken img: benign
+    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') && src) {
+      banner('MediaMaid: failed to load ' + src.split('/').pop() + ' — hard-refresh (Ctrl+Shift+R). If it persists, please report this message.');
+      return;
+    }
+    banner('MediaMaid error: ' + (e.message || 'unknown') + (src ? ' @ ' + src.split('/').pop() : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var m = (e.reason && (e.reason.message || String(e.reason))) || 'unknown';
+    banner('MediaMaid: ' + m);
+  });
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (!window.MediaMaidInitDone) {
+        banner('MediaMaid compressor did not start — hard-refresh (Ctrl+Shift+R). If it persists, open the Console (F12) and report the red message.', 'warn');
+      }
+      if (typeof VideoEncoder === 'undefined' || typeof VideoDecoder === 'undefined') {
+        var t = document.getElementById('mmv-panel-note');
+        if (t) t.hidden = false;
+      }
+    }, 2500);
+  });
+})();
+</script>
   <!-- BuyMeACoffee Widget (Lazy Loaded for Optimal Core Web Vitals) -->
   <script>
     (function () {

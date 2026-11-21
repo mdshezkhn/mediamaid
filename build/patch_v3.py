@@ -303,4 +303,84 @@ if "MediaMaid v3: compressor" not in css:
     print("[css] PATCHED")
 else:
     print("[css] SKIP")
+
+# ── 6. error watchdog (inline, BEFORE nothing — catches everything at runtime)
+# Makes any failure visible instead of silent: load failure, init failure,
+# runtime exceptions, unhandled rejections, missing WebCodecs.
+WATCHDOG = """
+<script>
+/* MediaMaid watchdog — surfaces every failure so nothing dies silently */
+(function () {
+  var seen = 0;
+  function banner(msg, kind) {
+    var b = document.getElementById('mm-watchdog');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'mm-watchdog';
+      b.style.cssText = 'position:fixed;z-index:99999;left:12px;right:12px;top:12px;max-width:720px;margin:auto;'
+        + 'padding:12px 16px;border-radius:12px;font:13px/1.5 system-ui,sans-serif;color:#fff;'
+        + 'box-shadow:0 8px 30px rgba(0,0,0,.35);cursor:pointer';
+      document.body ? document.body.appendChild(b) : document.addEventListener('DOMContentLoaded', function () { document.body.appendChild(b); });
+      b.onclick = function () { b.remove(); };
+    }
+    b.style.background = kind === 'warn' ? '#b45309' : '#b91c1c';
+    b.textContent = msg;
+    seen++;
+  }
+  window.__mmBanner = banner;
+  window.addEventListener('error', function (e) {
+    var src = (e.target && e.target.src) || e.filename || '';
+    if (src && src.indexOf('extension') > -1) return;
+    if (e.target && e.target.tagName === 'IMG' && !e.filename) return; // broken img: benign
+    if (e.target && (e.target.tagName === 'SCRIPT' || e.target.tagName === 'LINK') && src) {
+      banner('MediaMaid: failed to load ' + src.split('/').pop() + ' — hard-refresh (Ctrl+Shift+R). If it persists, please report this message.');
+      return;
+    }
+    banner('MediaMaid error: ' + (e.message || 'unknown') + (src ? ' @ ' + src.split('/').pop() : ''));
+  }, true);
+  window.addEventListener('unhandledrejection', function (e) {
+    var m = (e.reason && (e.reason.message || String(e.reason))) || 'unknown';
+    banner('MediaMaid: ' + m);
+  });
+  window.addEventListener('load', function () {
+    setTimeout(function () {
+      if (!window.MediaMaidInitDone) {
+        banner('MediaMaid compressor did not start — hard-refresh (Ctrl+Shift+R). If it persists, open the Console (F12) and report the red message.', 'warn');
+      }
+      if (typeof VideoEncoder === 'undefined' || typeof VideoDecoder === 'undefined') {
+        var t = document.getElementById('mmv-panel-note');
+        if (t) t.hidden = false;
+      }
+    }, 2500);
+  });
+})();
+</script>
+"""
+if "mm-watchdog" not in html:
+    html = html.replace('<script src="./compressor.js"></script>',
+                        '<script src="./compressor.js"></script>\n  ' + WATCHDOG.strip(), 1)
+    html_p.write_text(html, encoding="utf-8", newline="\n")
+    print("[watchdog] PATCHED")
+else:
+    print("[watchdog] SKIP")
+
+# browser-support note inside the video-compressor panel
+NOTE = '<p class="mm-note" id="mmv-panel-note" hidden>⚠ This browser has no WebCodecs support — video compression needs Chrome or Edge. Removing watermarks still works.</p>'
+if 'id="mmv-panel-note"' not in html:
+    html = html.replace('<div id="mmv-dropzone" class="dropzone">', NOTE + '\n      <div id="mmv-dropzone" class="dropzone">', 1)
+    html_p.write_text(html, encoding="utf-8", newline="\n")
+    print("[support-note] PATCHED")
+else:
+    print("[support-note] SKIP")
+
+CSS_NOTE = """
+.mm-note { font-size: 12.5px; color: #b45309; background: #fffbeb; border: 1px solid #fde68a;
+  padding: 10px 14px; border-radius: 10px; margin: 10px 0 0; line-height: 1.5; }
+"""
+css2 = css_p.read_text(encoding="utf-8")
+if "mm-note" not in css2:
+    css_p.write_text(css2 + CSS_NOTE, encoding="utf-8", newline="\n")
+    print("[note-css] PATCHED")
+else:
+    print("[note-css] SKIP")
 print("done")
