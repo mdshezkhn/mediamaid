@@ -156,7 +156,7 @@ GUARD = """<!-- v2: offline-safe GitHub API guard (installed before main.js) -->
     window.fetch = function (input, init) {
       var url = typeof input === 'string' ? input : (input && input.url) || '';
       if (url.indexOf('api.github.com') !== -1) {
-        return Promise.resolve(new Response('', { status: 204, statusText: 'offline' }));
+        return Promise.resolve(new Response(null, { status: 204 }));
       }
       return _f(input, init);
     };

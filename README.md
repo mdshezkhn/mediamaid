@@ -1,132 +1,50 @@
-# Universal AI Watermark Remover (v2)
+# MediaMaid — Watermark Remover & Video/Image Compressor
 
-Free, 100% client-side watermark remover for **any** AI watermark — Gemini /
-Nano Banana, Veo / Flow, Sora, Kling AI, Grok Imagine, Hailuo / MiniMax,
-Luma, Runway, PixVerse, TikTok / CapCut caption bars, or **any custom mark**
-you can box with a drag. Images and videos, zero uploads, original quality.
+**Live:** https://mdshezkhn.github.io/mediamaid/
 
-Built on the excellent [Gemini Watermark Remover by Ishara Madushanka](https://github.com/ishara-madu/gemini-watermark-remover)
-(MIT — kept verbatim in [LICENSE](LICENSE), original README preserved as
-[ORIGINAL-README.md](ORIGINAL-README.md)). This fork extends it from a
-Gemini/Veo-only tool into a universal one.
+A 100% client-side media toolkit. Remove AI watermarks (Gemini, Veo, Sora, Kling, Grok, Hailuo, Luma, Runway, PixVerse — or any logo you can draw a box around) and compress video & images to any target size. **Nothing is ever uploaded** — all processing happens in your browser via WebCodecs + mediabunny.
 
-## Two removal engines
+## Tools
 
-| Engine | Used for | Quality |
-| --- | --- | --- |
-| **Sparkle un-blend** (from upstream) | the known Gemini/Veo sparkle logo | exact inverse of the alpha blend — effectively lossless |
-| **Universal engine** (new, `universal.js`) | any static overlay: logos, text, caption bars | semi-transparent strokes are recovered by inverting the blend (near-lossless); opaque regions are inpainted with a clean plausible fill |
+### 1. Watermark Remover (images)
+- Exact alpha-map un-blending for Gemini / Nano Banana / Veo sparkles (mathematically reverses the blend — no blur, no AI guessing)
+- Generic engine for any mark: per-channel alpha estimation, mark-aware background re-estimation, dual-polarity un-blend, diffusion inpaint
+- Presets: Gemini (new/classic), Sora, Grok Imagine, TikTok/CapCut caption bar, Custom drag-box
 
-The universal engine works by estimating the local background with a
-robust multi-scale median (immune to the watermark itself), recovering the
-per-pixel overlay alpha, un-blending semi-transparent strokes exactly, and
-inpainting whatever is truly opaque. White and dark marks, mixed marks
-(black text on a white caption bar), any position.
+### 2. Watermark Remover (videos)
+- Frame-by-frame processing through WebCodecs, audio passed through untouched
+- Presets: Veo/Flow (adaptive), Veo corner, standard sparkle, Sora, Kling, Grok, Hailuo, Luma, Runway, PixVerse, caption bar, Custom drag-box
+- Auto-detect scans corners for the mark and shows a match badge
 
-## Using it
+### 3. Video Compressor (v3)
+- **By quality** (5 stops), **Target a file size** (% of original, with one automatic refinement pass), or **Set max bitrate**
+- Advanced: H.264 / H.265 / VP9 / AV1 (probed — unsupported codecs are disabled), MP4/WebM, resolution cap (1080p–360p), frame-rate cap (30/24), remove-audio
+- Batch queue with per-file progress, before/after sizes, % saved, per-file download + **Download all (.zip)**
+- No file-size limits, no upload — unlike cloud compressors
 
-1. Drop an image or video onto the page.
-2. Hit **Auto-Detect** (finds sparkle marks and generic corner/caption marks),
-   pick a **preset chip** (Sora, Kling, Grok, Hailuo, Luma, Runway, PixVerse,
-   TikTok/CapCut bar, …), or just **drag a box** over the watermark on the
-   live preview.
-3. Fine-tune with the sliders (strength / size / position), watch the dual
-   zoomed previews, then **Export**.
-
-Image output is a lossless PNG. Video is re-encoded to H.264 MP4 **with the
-original audio stream-copied byte-for-byte**, entirely in your browser via
-WebCodecs + [mediabunny](https://github.com/Vanilagy/mediabunny)
-(vendored locally in `vendor/` — no CDN needed; jsdelivr remains a fallback).
-
-## Run it
-
-```bash
-python -m http.server 8080
-# open http://localhost:8080
-```
-
-Any static server works; GitHub Pages works too. (Video export needs a
-secure context — `localhost`/HTTPS — and Chrome/Edge.)
+### 4. Image Compressor (v3)
+- **By quality** (1–10) or **Target a file size in KB** (binary search on quality)
+- Format: JPEG / WebP; max-dimension downscale (4K → 720px)
+- Batch queue + ZIP download
 
 ## Pro CLI (batch / big files)
 
-`pro/remove_wm.py` runs the same engines headlessly with ffmpeg — folders of
-images, long videos, audio preserved, auto-detect or explicit presets/boxes:
+`pro/remove_wm.py` — same engines outside the browser (watermark removal + video processing with audio preservation). Python 3.10+, optional OpenCV for TELEA inpainting.
 
-```bash
-pip install numpy pillow            # (+ opencv-python, imageio-ffmpeg optional)
-python pro/remove_wm.py veo_clip.mp4 --preset veo
-python pro/remove_wm.py sora_clip.mp4            # auto-detect
-python pro/remove_wm.py my_folder/               # batch images
-```
+## Honest limits
 
-See [pro/README.md](pro/README.md) for the full preset table.
+- Opaque overlays (fully-hidden content) get a clean soft fill — pixels under them are destroyed in the source; nothing can truly reconstruct them
+- Video text removal floors around ~50% visibility due to codec ringing
+- AV1 encoding is slow; H.264 is the compatibility default
+- HEVC/AV1 outputs may not play in older browsers/players
 
-## Layout
+## Privacy
 
-| Path | What it is |
-| --- | --- |
-| `index.html` | The app (upload → detect/box → tune → export) |
-| `main.js` | Upstream engine (sparkle un-blend, video pipeline) — unchanged |
-| `universal.js` | **v2 layer**: universal engine, presets, drag-box, unified UI, local mediabunny |
-| `vendor/mediabunny.mjs` | Vendored mediabunny 1.52.3 (MPL-2.0) |
-| `pro/remove_wm.py` | Headless CLI (batch, ffmpeg, audio-safe) |
-| `style.css`, `assets/`, `portfolio_images/`, secondary pages | Original site shell |
-| `qa/` | Playwright QA rig + synthetic watermarked test assets with ground truth |
-| `build/` | Test-asset generator + idempotent HTML patcher (regenerable) |
-
-## QA
-
-`qa/qa_v2.py` spins up the site in headless Edge and functionally tests every
-path with synthetic watermarked assets that have **ground truth**:
-sparkle un-blend vs truth (MAE < 3), Sora/Grok generic removal vs truth
-(MAE < 8), opaque caption-bar removal (edge energy −70%), full video
-pipeline (duration + audio preserved + watermark-energy reduction on
-extracted frames), responsive layout and console cleanliness.
-
-```bash
-C:/Python314/python.exe build/make_test_assets.py   # build test assets once
-C:/Python314/python.exe qa/qa_v2.py                 # run the suite
-```
+No uploads, no analytics, no cookies. Everything runs locally; closing the tab erases everything.
 
 ## Credits & license
 
-- Upstream tool, design and original engine: **Ishara Madushanka** (MIT).
-- v2 universal engine, CLI and this fork: added under the same MIT license.
-- mediabunny: MPL-2.0 © Vanilagy and contributors (vendored, unmodified).
-- See [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md) for details.
-
-Please respect each AI provider's terms of service and applicable law — use
-this tool only on content you have the rights to modify.
-
-## QA (v2)
-
-`qa/qa_v2.py` (Playwright, msedge headless) — **23/23 PASS** (2026-11-21):
-
-| Area | Result |
-|---|---|
-| Gemini image un-blend vs ground truth | MAE **0.55** (mathematically exact) |
-| Outside-box pixels untouched | MAE 0.002 (byte-identical) |
-| Sora / Grok image text (80% alpha, colourful photo) | MAE 11.8 / 10.9 (faint ghost only) |
-| TikTok / CapCut bar (92% opaque) | 62.9% structure removed |
-| Veo sparkle in video (H.264, audio kept) | **80.6%** removed |
-| Sora text in video (per-frame engine) | 55.8% removed |
-| Video export | duration + audio track preserved |
-| Mobile 390px | no horizontal overflow |
-| Console | zero errors |
-
-Run it: `python build/make_test_assets.py && python qa/qa_v2.py` (serves :8955).
-
-## Honest limitations (v2)
-
-- **Opaque overlays** (TikTok solid bars, 90%+ opacity): the pixels underneath
-  are destroyed — the tool fills them with content-aware smoothing. Expect a
-  soft patch, not magic reconstruction. No client-side tool can do better.
-- **Semi-transparent marks on busy/photo content** clean to a faint ghost
-  (MAE ~10/255). On smooth backgrounds they are near-invisible.
-- **Video text** rides on re-encoded frames; the measured floor is ~50%
-  stroke-energy removal from codec ringing alone.
-- **Auto-detect** works on realistic content; on noisy/synthetic images pass a
-  preset or drag a box (the Custom chip).
-- Codec loss (H.264) perturbs the blend equation — exact un-blending is only
-  possible on the first generation of a mark.
+- Original Gemini watermark engine: [ishara-madu/gemini-watermark-remover](https://github.com/ishara-madu/gemini-watermark-remover) (MIT © Ishara Madushanka) — see `ORIGINAL-README.md`, `LICENSE`
+- Video pipeline: [mediabunny](https://mediabunny.dev) v1.52.3 (MPL-2.0), vendored at `vendor/mediabunny.mjs` — see `THIRD-PARTY-NOTICES.md`
+- v2 universal engine, v3 compressor & rebrand: Mohammed Shehzad
+- Compressor UX is feature-equivalent to freeconvert.com/video-compressor (methods: quality / target size / max bitrate) — clean-room implementation, no code or assets copied
