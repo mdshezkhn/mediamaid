@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://ishara-madu.github.io/gemini-watermark-remover/sitemap.xml
