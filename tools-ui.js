@@ -631,7 +631,7 @@
         v.src = url; v.classList.remove('v4-hide');
       }
       const dl = document.createElement('button');
-      dl.className = 'btn-secondary';
+      dl.className = 'btn-secondary dl';
       dl.innerHTML = '<iconify-icon icon="ph:download-simple-bold"></iconify-icon> Download';
       dl.addEventListener('click', () => MMT.download(blob, name));
       wrap.appendChild(dl);
