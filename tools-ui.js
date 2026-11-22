@@ -392,6 +392,7 @@
     const bar = root.querySelector('.mmt-progress-bar');
     const status = root.querySelector('.mmt-status');
     const result = root.querySelector('.mmt-result');
+    root.querySelector('.btn-run').addEventListener('click', runNow);
     let files = [];
     let probe = null;
 

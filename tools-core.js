@@ -103,7 +103,8 @@ window.MMT = (() => {
   // ── media probes ──────────────────────────────────────────────────────────
   async function probeVideo(file) {
     const lib = await mb();
-    const input = new lib.Input({ source: new lib.BlobSource(file), formats: new lib.AllFormats() });
+    const { ALL_FORMATS, Input, BlobSource } = lib;
+    const input = new Input({ source: new BlobSource(file), formats: ALL_FORMATS });
     const vTrack = await input.getPrimaryVideoTrack();
     const aTrack = await input.getPrimaryAudioTrack();
     let v = null, a = null;
