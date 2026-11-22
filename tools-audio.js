@@ -14,11 +14,9 @@
     const buf = dec.buffer;
     const sr = buf.sampleRate;
     const startS = Math.max(0, t0), endS = (t1 == null || t1 > buf.duration) ? buf.duration : Math.max(startS + 0.05, t1);
-    const n = Math.round((endS - startS) * sr);
-    const AC = window.OfflineAudioContext;
-    const out = new AC(buf.numberOfChannels, n, sr);
-    for (let c = 0; c < buf.numberOfChannels; c++) out.getChannelData(c).set(buf.getChannelData(c).subarray(Math.round(startS * sr), Math.round(startS * sr) + n));
-    const rendered = await out.startRendering();
+    const n = Math.max(1, Math.round((endS - startS) * sr));
+    const rendered = new AudioBuffer({ length: n, numberOfChannels: buf.numberOfChannels, sampleRate: sr });
+    for (let c = 0; c < buf.numberOfChannels; c++) rendered.getChannelData(c).set(buf.getChannelData(c).subarray(Math.round(startS * sr), Math.round(startS * sr) + n));
     if (onProgress) onProgress(0.4);
 
     // fades + gain
