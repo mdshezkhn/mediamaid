@@ -245,11 +245,12 @@
 
   // helper: run per-file then zip if multiple (names via current tool+opts)
   let _curToolObj = null, _curOpts = null;
+  const unwrap = (r) => (r && r.blob instanceof Blob) ? r.blob : r;
   async function zipOrSingle(files, fn, onProgress) {
-    if (files.length === 1) return { blob: await fn(files[0], onProgress), name: null };
+    if (files.length === 1) return { blob: unwrap(await fn(files[0], onProgress)), name: null };
     const parts = [];
     for (let i = 0; i < files.length; i++) {
-      const blob = await fn(files[i], (x) => onProgress((i + x) / files.length));
+      const blob = unwrap(await fn(files[i], (x) => onProgress((i + x) / files.length)));
       let nm = 'file-' + (i + 1);
       if (_curToolObj && _curToolObj.outName) {
         try { nm = _curToolObj.outName(files[i], _curOpts || {}); } catch { }
