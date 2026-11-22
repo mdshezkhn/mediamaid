@@ -218,8 +218,12 @@ SUBPAGES = ["about.html", "contact.html", "privacy-policy.html",
 CREATOR_RES = [
     (re.compile(r"Ishara Madusanka", re.I), "Mohammed Shehzad"),
     (re.compile(r"Ishara Madu\w*", re.I), "Mohammed Shehzad"),
+    # short display form ("Ishara M.") and repair artifacts — AFTER the Madu forms
+    (re.compile(r"Ishara M\.", re.I), "Mohammed Shehzad"),
+    (re.compile(r"https://https://", re.I), "https://"),  # earlier rebrand left double protocol
+    (re.compile(r"https://avatars\.githubusercontent\.com/u/104107127[^\"<\s]*", re.I), "./assets/logo.webp"),
     (re.compile(r"ishara-madu\.github\.io[^\s\"'<)]*", re.I), "https://mdshezkhn.github.io/mediamaid/"),
-    (re.compile(r"https://github\.com/ishara-madu/[a-z-]+", re.I), "https://github.com/mdshezkhn/mediamaid"),
+    (re.compile(r"(?<!/)github\.com/ishara-madu(?:/[a-z-]+)?", re.I), "https://github.com/mdshezkhn"),
     (re.compile(r"buymeacoffee\.com/[^\"'<)\s]+", re.I), "mdshezkhn.github.io/mediamaid"),
 ]
 

@@ -190,7 +190,9 @@
         octx.restore();
         if (lastTs >= 0 && timestamp <= lastTs) timestamp = lastTs + 0.001;
         lastTs = timestamp;
-        await vSource.add(new VideoSample(out, { timestamp, duration: d }));
+        const vs = new VideoSample(out, { timestamp, duration: d });
+        await vSource.add(vs);
+        vs.close(); // source does not take ownership — unclosed = GC console warning
       }
       idx += 1;
       sample.close();

@@ -355,6 +355,17 @@ body.mm-noscroll { overflow: hidden; }
   scroll-margin-top: 96px;
 }
 
+/* v3 perf rule renders skipped sections as fixed 400px-wide placeholders
+   (contain-intrinsic-size single value = width AND height) → 5px horizontal
+   bleed on 390px phones. Mobile sections are small; just disable it. */
+@media (max-width: 767px) {
+  .how-it-works-section, .guide-section, .comparison-section,
+  .features-section, .faq-section {
+    content-visibility: visible;
+    contain-intrinsic-size: auto;
+  }
+}
+
 /* ── legacy dark-mode compat: app toggles html.dark ─────────────────────── */
 html.dark body { background: var(--bg-primary); }
 
