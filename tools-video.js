@@ -70,8 +70,8 @@
       for (const probe of probes) {
         const placement = li * totalSingle + prefix;
         prefix += probe.duration || 0;
-        // requested local cut point for this copy
-        const want = placement + t0;
+        // track-LOCAL cut point (same for every copy; placement shifts output)
+        const want = t0;
         let snap = want;
         let vCfg = null, aCfg = null;
         if (vSource && probe.v) {

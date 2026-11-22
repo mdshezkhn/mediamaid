@@ -101,19 +101,18 @@
     let acc = 0;
     const lens = [];
     for (const f of files) { const d = await MMT.probeAudio(f); lens.push(d.buffer); acc += d.duration; }
-    const AC = window.OfflineAudioContext;
     const nCh = Math.max(...lens.map(b => b.numberOfChannels));
-    const out = new AC(nCh, Math.ceil((acc + total) * sr), sr);
+    const totalLen = Math.max(1, Math.ceil((acc + total) * sr));
+    const rendered = new AudioBuffer({ length: totalLen, numberOfChannels: nCh, sampleRate: sr });
     let cursor = 0;
     for (const b of lens) {
       for (let c = 0; c < nCh; c++) {
         const srcCh = b.getChannelData(Math.min(c, b.numberOfChannels - 1));
-        out.getChannelData(c).set(srcCh, Math.round(cursor * sr));
+        rendered.getChannelData(c).set(srcCh, Math.round(cursor * sr));
       }
       cursor += b.duration + gap;
       if (onProgress) onProgress(0.5 * (cursor / (acc + total)));
     }
-    const rendered = await out.startRendering();
     if (onProgress) onProgress(0.6);
     return { buffer: rendered, format, bitrate };
   }
