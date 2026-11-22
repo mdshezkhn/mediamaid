@@ -426,10 +426,17 @@
         try { probe = await MMT.probeAudio(files[0]); } catch { }
       }
       buildOpts();
-      optsEl.classList.remove('v4-hide');
-      acts.classList.remove('v4-hide');
-      if (t.id === 'compress-video' || t.id === 'compress-image') { /* legacy handles its own run */ }
-      else autoRun();
+      // tools whose options all have safe defaults run immediately; the rest
+      // wait for the Run button so the user can adjust first
+      const needsSetup = t.fields.some(f => f.type !== 'note');
+      if (needsSetup) {
+        optsEl.classList.remove('v4-hide');
+        acts.classList.remove('v4-hide');
+      } else {
+        optsEl.classList.add('v4-hide');
+        acts.classList.add('v4-hide');
+        autoRun();
+      }
     }
 
     function buildOpts() {
