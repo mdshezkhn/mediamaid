@@ -150,7 +150,7 @@
       fields: [
         { k: 'format', type: 'select', label: 'Format', value: 'jpeg', options: [['jpeg', 'JPG'], ['png', 'PNG'], ['webp', 'WebP']] },
         { k: 'quality', type: 'range', label: 'Quality', min: 0.3, max: 1, step: 0.05, value: 0.9 },
-        { k: 'maxDim', type: 'select', label: 'Max size', value: 0, options: [[0, 'Original'], [4096, '4096px'], [1920, '1920px'], [1280, '1280px'], [800, '800px']] },
+        { k: 'maxDim', type: 'select', label: 'Max size', value: 0, options: [[0, 'Original'], [4096, '4096px'], [1920, '1920px'], [1280, '1280px'], [800, '800px'], [400, '400px']] },
       ],
       run: (files, o, p) => zipOrSingle(files, (f, pp) => D.convertImage(f, o, pp), p),
       outName: (f, o) => `${MMT.baseName(f.name)}.${EXT(o.format)}`,
