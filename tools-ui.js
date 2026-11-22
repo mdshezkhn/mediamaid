@@ -329,8 +329,8 @@
     curToolId = null;
     stageEl.classList.add('v4-hide');
     if (homeView) { homeView.classList.remove('v4-hide'); homeView.classList.remove('view-leave'); }
-    history.replaceState(null, '', location.pathname + '#tools');
-    document.getElementById('tools').scrollIntoView({ behavior: 'auto', block: 'start' });
+    history.replaceState(null, '', location.pathname + '#tools-home-view');
+    document.getElementById('tools-home-view').scrollIntoView({ behavior: 'auto', block: 'start' });
   }
 
   // ── open a tool ───────────────────────────────────────────────────────────
@@ -344,7 +344,7 @@
     stageTitle.textContent = t.name;
     toolRoot.innerHTML = '';
     legacyPanels.classList.add('v4-hide');
-    current = t.record ? buildRecorder(t) : buildRunner(t);
+    if (t.record) buildRecorder(t); else buildRunner(t);
   }
 
   function openLegacy(t) {

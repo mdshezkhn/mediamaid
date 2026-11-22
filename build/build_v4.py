@@ -94,7 +94,7 @@ SHELL_HEAD = """<!DOCTYPE html>
     <div class="hero-inner">
       <p class="hero-kicker glass-chip"><iconify-icon icon="ph:sparkle-fill"></iconify-icon> 100% in your browser — nothing ever uploads</p>
       <h1 class="hero-title">Every media tool,<br /><span class="grad">one tidy studio.</span></h1>
-      <p class="hero-sub">Remove AI watermarks, compress, trim, crop, convert, merge, record and edit PDFs — 25 tools, zero uploads, zero watermarks of our own.</p>
+      <p class="hero-sub">Remove AI watermarks, compress, trim, crop, convert, merge, record and edit PDFs — 26 tools, zero uploads, zero watermarks of our own.</p>
       <div class="hero-actions">
         <a href="#workspace" class="glass-btn big"><iconify-icon icon="ph:cursor-click"></iconify-icon> Pick a tool below</a>
       </div>
@@ -106,7 +106,7 @@ SHELL_HEAD = """<!DOCTYPE html>
     </div>
   </section>
 
-  <section class="tools-home section-pad" id="tools">
+  <section class="tools-home section-pad" id="tools-home-view">
     <div class="section-inner">
       <h2 class="section-title">Choose your tool</h2>
       <p class="section-sub">Everything runs on this page — your files never leave the device.</p>
