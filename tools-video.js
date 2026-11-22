@@ -240,7 +240,10 @@
     const sink = new EncodedPacketSink(info.a.track);
     let first = true, n = 0;
     for await (const packet of sink.packets()) {
-      await src.add(packet, first ? { decoderConfig: cfg } : undefined);
+      // AAC priming/edit lists can make the first packet slightly negative —
+      // the muxer rejects negative timestamps, so clamp to 0
+      const out = packet.timestamp < 0 ? packet.clone({ timestamp: 0 }) : packet;
+      await src.add(out, first ? { decoderConfig: cfg } : undefined);
       first = false; n += 1;
       if (onProgress && (n & 63) === 0 && info.duration) onProgress(Math.min(0.95, packet.timestamp / info.duration));
     }
