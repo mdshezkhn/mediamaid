@@ -204,7 +204,7 @@
         let first = true, lastTsA = -1;
         for await (const packet of sinkA.packets()) {
           let ts = (packet.timestamp - firstTs) / speed;
-          if (ts < 0) continue;
+          if (ts <= 0) ts = 0; // clamp AAC priming negatives — muxer rejects <0
           if (ts <= lastTsA) ts = lastTsA + 0.001;
           lastTsA = ts;
           await aSource.add(packet.clone({ timestamp: ts }), first ? { decoderConfig: audioCfg } : undefined);
