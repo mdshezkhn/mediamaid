@@ -106,8 +106,9 @@
       rotate = 0,         // 0 | 90 | 180 | 270
       maxW = 0, maxH = 0, // downscale cap (after crop+rotate)
       speed = 1,          // 0.5x … 2x
-      fpsCap = 0, keepAudio = true, mimeType = 'video/mp4', bitrateFactor = 0.9,
+      fpsCap = 0, keepAudio = true, mimeType: mimeTypeOpt = 'video/mp4', bitrateFactor = 0.9,
     } = opts;
+    let mimeType = mimeTypeOpt;
 
     const { Input, BlobSource, Output, BufferTarget, WebMOutputFormat, Mp4OutputFormat,
             VideoSampleSource, AudioBufferSource, VideoSampleSink, VideoSample,
@@ -132,10 +133,20 @@
     out.width = ow; out.height = oh;
     const octx = out.getContext('2d', { alpha: false });
 
+    // codec negotiation: avc first, vp9 fallback (mirrors compressor.js)
+    let codec = 'avc';
+    try {
+      const { canEncodeVideo } = await MMT.mb();
+      const avcOk = await canEncodeVideo('avc');
+      const vp9Ok = await canEncodeVideo('vp9');
+      if (!avcOk && vp9Ok) codec = 'vp9';
+      else if (!avcOk && !vp9Ok) throw new Error('This browser cannot encode video (no avc/vp9 encoder).');
+    } catch (e) { if (String(e).includes('cannot encode')) throw e; }
+    if (codec === 'vp9') mimeType = 'video/webm';
     const container = mimeType === 'video/webm' ? new WebMOutputFormat() : new Mp4OutputFormat({ fastStart: 'in-memory' });
     const target = new BufferTarget();
     const output = new Output({ format: container, target });
-    const vSource = new VideoSampleSource({ bitrate: Math.max(300_000, Math.round(info.v.bitrate * bitrateFactor) || 2_500_000) });
+    const vSource = new VideoSampleSource({ codec, bitrate: Math.max(300_000, Math.round(info.v.bitrate * bitrateFactor) || 2_500_000) });
     output.addVideoTrack(vSource, { frameRate: fpsCap > 0 ? fpsCap : undefined });
 
     let aSource = null, audioBuffer = null, audioCfg = null;
