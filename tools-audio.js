@@ -75,14 +75,15 @@
 
   async function encodeToM4a(buffer, kbps, onProgress) {
     const { Output, BufferTarget, Mp4OutputFormat, AudioBufferSource } = await MMT.mb();
-    const output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+    const target = new BufferTarget();
+    const output = new Output({ format: new Mp4OutputFormat(), target });
     const src = new AudioBufferSource();
     output.addAudioTrack(src);
     await output.start();
     await src.add(buffer);
     src.close();
-    output.close();
-    const { buffer: out } = await output.completion.caught();
+    await output.finalize();
+    const out = target.buffer;
     return new Blob([out], { type: 'audio/mp4' });
   }
 

@@ -24,7 +24,8 @@
     if (first.v && keepVideo && !first.v.codec) throw new Error('Unsupported video codec for direct copy.');
     if (first.a && keepAudio && !first.a.codec) throw new Error('Unsupported audio codec for direct copy.');
 
-    const output = new Output({ format: new Mp4OutputFormat({ fastStart: 'in-memory' }), target: new BufferTarget() });
+    const target = new BufferTarget();
+    const output = new Output({ format: new Mp4OutputFormat({ fastStart: 'in-memory' }), target });
     let vSource = null, aSource = null;
     if (first.v && keepVideo) { vSource = new EncodedVideoPacketSource(first.v.codec); output.addVideoTrack(vSource); }
     if (first.a && keepAudio) { aSource = new EncodedAudioPacketSource(first.a.codec); output.addAudioTrack(aSource); }
@@ -72,14 +73,17 @@
         // requested local cut point for this copy
         const want = placement + t0;
         let snap = want;
-        let vCfg = null, aCfg = null, vSink = null;
+        let vCfg = null, aCfg = null;
         if (vSource && probe.v) {
           vCfg = await probe.v.track.getDecoderConfig().catch(() => null);
-          vSink = new EncodedPacketSink(probe.v.track);
+          const vSink = new EncodedPacketSink(probe.v.track);
           try {
             const kp = await vSink.getKeyPacket(Math.max(0, want));
             if (kp) snap = Math.max(placement, kp.timestamp); // ≥ placement, key-aligned
           } catch { }
+        }
+        if (aSource && probe.a) {
+          aCfg = await probe.a.track.getDecoderConfig().catch(() => null);
         }
         if (vSource && probe.v) await copyRange(probe.v.track, vSource, firstV, true, snap, placement, vCfg);
         firstV = false;
@@ -89,8 +93,8 @@
       }
     }
 
-    output.close();
-    const { buffer } = await output.completion.caught();
+    await output.finalize();
+    const buffer = target.buffer;
     if (onProgress) onProgress(1);
     return new Blob([buffer], { type: 'video/mp4' });
   }
@@ -129,7 +133,8 @@
     const octx = out.getContext('2d', { alpha: false });
 
     const container = mimeType === 'video/webm' ? new WebMOutputFormat() : new Mp4OutputFormat({ fastStart: 'in-memory' });
-    const output = new Output({ format: container, target: new BufferTarget() });
+    const target = new BufferTarget();
+    const output = new Output({ format: container, target });
     const vSource = new VideoSampleSource({ bitrate: Math.max(300_000, Math.round(info.v.bitrate * bitrateFactor) || 2_500_000) });
     output.addVideoTrack(vSource, { frameRate: fpsCap > 0 ? fpsCap : undefined });
 
@@ -198,8 +203,8 @@
     }
 
     vSource.close();
-    output.close();
-    const { buffer } = await output.completion.caught();
+    await output.finalize();
+    const buffer = target.buffer;
     if (onProgress) onProgress(1);
     return { blob: new Blob([buffer], { type: mimeType }), width: ow, height: oh };
   }
@@ -227,7 +232,8 @@
     if (!info.a) throw new Error('This file has no audio track.');
     const cfg = await info.a.track.getDecoderConfig().catch(() => null);
     if (!cfg) throw new Error('Audio codec not supported for direct copy: ' + info.a.codec);
-    const output = new Output({ format: new Mp4OutputFormat(), target: new BufferTarget() });
+    const target = new BufferTarget();
+    const output = new Output({ format: new Mp4OutputFormat(), target });
     const src = new EncodedAudioPacketSource(info.a.codec);
     output.addAudioTrack(src);
     await output.start();
@@ -238,8 +244,8 @@
       first = false; n += 1;
       if (onProgress && (n & 63) === 0 && info.duration) onProgress(Math.min(0.95, packet.timestamp / info.duration));
     }
-    output.close();
-    const { buffer } = await output.completion.caught();
+    await output.finalize();
+    const buffer = target.buffer;
     if (onProgress) onProgress(1);
     return new Blob([buffer], { type: 'audio/mp4' });
   }
