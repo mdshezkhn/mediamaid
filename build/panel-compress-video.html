@@ -1,0 +1,88 @@
+    <section id="panel-compress-video" class="card hidden">
+      <p class="mm-note" id="mmv-panel-note" hidden>⚠ This browser has no WebCodecs support — video compression needs Chrome or Edge. Removing watermarks still works.</p>
+      <div id="mmv-dropzone" class="dropzone">
+        <div class="dropzone-icon"><iconify-icon icon="ph:arrows-in-bold"></iconify-icon></div>
+        <p class="dropzone-title">Upload or drag videos to compress</p>
+        <p class="dropzone-sub">Batch supported · MP4, WebM, MOV · no size limit — files never leave your device</p>
+        <input type="file" id="mmv-input" accept="video/*" multiple hidden />
+      </div>
+
+      <div class="mm-settings">
+        <p class="mm-label">Compression method</p>
+        <div class="mm-radios" role="radiogroup">
+          <label class="mm-radio"><input type="radio" name="mmv-method" value="quality" checked />
+            <span>By quality</span></label>
+          <label class="mm-radio"><input type="radio" name="mmv-method" value="target" />
+            <span>Target a file size (% of original)</span></label>
+          <label class="mm-radio"><input type="radio" name="mmv-method" value="bitrate" />
+            <span>Set max bitrate</span></label>
+        </div>
+
+        <div data-mmshow="v" data-mmmethod="quality" class="mm-sub">
+          <div class="mm-slider-row">
+            <input type="range" id="mmv-quality" min="1" max="5" step="1" value="3" />
+            <span class="mm-chip" id="mmv-quality-label">Balanced</span>
+          </div>
+          <p class="mm-hint">Balanced typically cuts file size by 50–70% with little visible change.</p>
+        </div>
+        <div data-mmshow="v" data-mmmethod="target" class="mm-sub hidden">
+          <div class="mm-slider-row">
+            <input type="number" id="mmv-target" min="1" max="99" step="1" value="50" /> <span class="mm-chip">% of original</span>
+          </div>
+          <p class="mm-hint" id="mmv-target-hint"></p>
+        </div>
+        <div data-mmshow="v" data-mmmethod="bitrate" class="mm-sub hidden">
+          <div class="mm-slider-row">
+            <input type="number" id="mmv-bitrate" min="30" max="50000" step="10" value="1500" /> <span class="mm-chip">kbps video</span>
+          </div>
+          <p class="mm-hint">Good streaming targets: 1080p ≈ 3000–5000, 720p ≈ 1500–2500, 480p ≈ 700–1200.</p>
+        </div>
+
+        <details class="mm-advanced">
+          <summary>Advanced settings (optional)</summary>
+          <div class="mm-grid">
+            <label>Output format
+              <select id="mmv-format">
+                <option value="auto" selected>Auto (recommended)</option>
+                <option value="mp4">MP4</option>
+                <option value="webm">WebM</option>
+              </select>
+            </label>
+            <label>Video codec
+              <select id="mmv-codec">
+                <option value="auto" selected>Auto (H.264 — works on old devices)</option>
+                <option value="avc" data-codec="avc">H.264 — most compatible</option>
+                <option value="hevc" data-codec="hevc">H.265 / HEVC — smaller</option>
+                <option value="vp9" data-codec="vp9">VP9 — WebM</option>
+                <option value="av1" data-codec="av1">AV1 — smallest (slow)</option>
+              </select>
+            </label>
+            <label>Resolution cap
+              <select id="mmv-res">
+                <option value="0" selected>Keep original</option>
+                <option value="1080">1080p</option>
+                <option value="720">720p</option>
+                <option value="480">480p</option>
+                <option value="360">360p</option>
+              </select>
+            </label>
+            <label>Frame-rate cap
+              <select id="mmv-fps">
+                <option value="0" selected>Keep original</option>
+                <option value="30">30 fps</option>
+                <option value="24">24 fps</option>
+              </select>
+            </label>
+          </div>
+          <p class="mm-hint" id="mmv-codec-note">Audio is kept as-is (never re-encoded). All processing happens on your device.</p>
+          <label class="mm-check"><input type="checkbox" id="mmv-mute" /> Remove audio (mutes the output)</label>
+        </details>
+      </div>
+
+      <div class="mm-summary" id="mmv-summary"></div>
+      <div class="mm-queue" id="mmv-queue"></div>
+      <div class="mm-actionsrow">
+        <button type="button" class="btn btn-primary" id="mmv-go" disabled>Compress Now</button>
+        <button type="button" class="btn" id="mmv-zip" disabled>Download all (.zip)</button>
+        <button type="button" class="btn mm-ghost" id="mmv-clear">Clear list</button>
+      </div>

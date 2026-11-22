@@ -1,0 +1,137 @@
+    <section id="panel-image" class="card">
+      <div id="img-dropzone" class="dropzone">
+        <div class="dropzone-icon">
+          <iconify-icon icon="ph:upload-simple-bold"></iconify-icon>
+        </div>
+        <p class="dropzone-title">Upload or drag any image</p>
+        <p class="dropzone-sub">Supports PNG, JPG, WebP</p>
+        <input id="img-input" type="file" accept="image/*" class="hidden" />
+      </div>
+
+      <!-- Image Staging Card (After Upload, Before Tuner) -->
+      <div id="img-staging-card" class="staging-card hidden">
+        <div class="checker staging-preview-box">
+          <img id="img-staging-preview" src="" alt="Uploaded Gemini Image" />
+        </div>
+        <div class="staging-meta">
+          <p id="img-staging-filename" class="staging-filename"></p>
+          <p id="img-staging-dims" class="staging-dims"></p>
+        </div>
+        <div class="staging-actions">
+          <button id="btn-img-auto-detect" type="button" class="btn btn-primary">
+            <iconify-icon icon="ph:sparkle-bold" width="18"></iconify-icon>
+            <span>Try Auto Detect</span>
+          </button>
+          <button id="btn-img-change-file" type="button" class="btn btn-secondary text-xs">
+            <iconify-icon icon="ph:arrows-clockwise" width="16"></iconify-icon>
+            <span>Change Image</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Image Tuner & Live Preview Container -->
+      <div id="img-tuner-container" class="tuner-container hidden">
+        <div id="img-detect-badge" class="detect-badge hidden"></div>
+        <div class="tuner-preview-row">
+          <div class="tuner-canvas-box main-box">
+            <span class="canvas-title">
+              <iconify-icon icon="ph:frame-corners" width="14"></iconify-icon>
+              Preview (Full Frame)
+            </span>
+            <div class="canvas-wrapper">
+              <canvas id="img-main-canvas"></canvas>
+                <p class="drag-hint hidden" id="img-drag-hint">💡 Drag on the preview to box ANY watermark — works for every logo, text or caption.</p>
+            </div>
+          </div>
+          <div class="tuner-canvas-box zoom-box">
+            <div class="zoom-card">
+              <span class="canvas-title text-blue-600">
+                <iconify-icon icon="ph:magnifying-glass-plus" width="14"></iconify-icon>
+                Zoomed Original
+              </span>
+              <div class="canvas-wrapper">
+                <canvas id="img-zoom-canvas" width="200" height="200"></canvas>
+              </div>
+            </div>
+            <div class="zoom-card">
+              <span class="canvas-title text-green-600">
+                <iconify-icon icon="ph:check-circle" width="14"></iconify-icon>
+                Zoomed Cleaned
+              </span>
+              <div class="canvas-wrapper">
+                <canvas id="img-zoom-cleaned-canvas" width="200" height="200"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Select Model Presets -->
+        <div class="tuner-preset-row">
+          <span class="tuner-preset-label">Model Preset:</span>
+          <div class="tuner-preset-buttons">
+            <button type="button" class="btn-preset active" data-preset="new" id="btn-preset-img-nano">
+              <iconify-icon icon="ph:sparkle-bold"></iconify-icon> Gemini / Nano Banana
+            </button>
+            <button type="button" class="btn-preset" data-preset="classic" id="btn-preset-img-classic">
+              <iconify-icon icon="ph:corners-out"></iconify-icon> Gemini (Classic)
+            </button>
+            <button type="button" class="btn-preset" data-preset="sora" id="btn-preset-img-sora">
+              <iconify-icon icon="ph:planet-bold"></iconify-icon> Sora
+            </button>
+            <button type="button" class="btn-preset" data-preset="grok" id="btn-preset-img-grok">
+              <iconify-icon icon="ph:rocket-bold"></iconify-icon> Grok Imagine
+            </button>
+            <button type="button" class="btn-preset" data-preset="caption" id="btn-preset-img-caption">
+              <iconify-icon icon="ph:subtitle-bold"></iconify-icon> TikTok / CapCut bar
+            </button>
+            <button type="button" class="btn-preset" data-preset="custom" id="btn-preset-img-custom">
+              <iconify-icon icon="ph:hand-grabbing-bold"></iconify-icon> Custom (drag a box)
+            </button>
+          </div>
+        </div>
+
+        <div class="tuner-sliders mt-2">
+          <div class="slider-group">
+            <div class="tuner-slider-label">
+              <span>Strength (Gain)</span>
+              <span id="lbl-img-gain">0.60x</span>
+            </div>
+            <input type="range" id="slider-img-gain" min="0.1" max="3" step="0.05" value="0.6" />
+          </div>
+          <div class="slider-group">
+            <div class="tuner-slider-label">
+              <span>Size Scale</span>
+              <span id="lbl-img-scale">1.00x</span>
+            </div>
+            <input type="range" id="slider-img-scale" min="0.5" max="2" step="0.05" value="1.0" />
+          </div>
+          <div class="slider-group">
+            <div class="tuner-slider-label">
+              <span>Position X</span>
+              <span id="lbl-img-offset-x">-128px</span>
+            </div>
+            <input type="range" id="slider-img-offset-x" min="-250" max="150" step="1" value="-128" />
+          </div>
+          <div class="slider-group">
+            <div class="tuner-slider-label">
+              <span>Position Y</span>
+              <span id="lbl-img-offset-y">-128px</span>
+            </div>
+            <input type="range" id="slider-img-offset-y" min="-250" max="150" step="1" value="-128" />
+          </div>
+        </div>
+
+        <div class="tuner-actions">
+          <button id="btn-img-change-file-tuner" class="btn btn-secondary text-xs" type="button">
+            <iconify-icon icon="ph:arrows-clockwise"></iconify-icon> Change Image
+          </button>
+          <button id="btn-img-reset-sliders" class="btn btn-secondary text-xs">
+            <iconify-icon icon="ph:arrow-counter-clockwise"></iconify-icon> Reset Sliders
+          </button>
+          <button id="btn-img-export" class="btn btn-primary">
+            <iconify-icon icon="ph:eraser"></iconify-icon> Remove &amp; Export Image
+          </button>
+        </div>
+      </div>
+
+      <div id="img-results" class="hidden mt-4"></div>

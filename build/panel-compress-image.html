@@ -1,0 +1,62 @@
+    <section id="panel-compress-image" class="card hidden">
+      <div id="mmi-dropzone" class="dropzone">
+        <div class="dropzone-icon"><iconify-icon icon="ph:image-bold"></iconify-icon></div>
+        <p class="dropzone-title">Upload or drag images to compress</p>
+        <p class="dropzone-sub">Batch supported · PNG, JPG, WebP · files never leave your device</p>
+        <input type="file" id="mmi-input" accept="image/*" multiple hidden />
+      </div>
+
+      <div class="mm-settings">
+        <p class="mm-label">Compression method</p>
+        <div class="mm-radios" role="radiogroup">
+          <label class="mm-radio"><input type="radio" name="mmi-method" value="quality" checked />
+            <span>By quality</span></label>
+          <label class="mm-radio"><input type="radio" name="mmi-method" value="target" />
+            <span>Target a file size (KB)</span></label>
+        </div>
+
+        <div data-mmshow="i" data-mmmethod="quality" class="mm-sub">
+          <div class="mm-slider-row">
+            <input type="range" id="mmi-quality" min="1" max="10" step="1" value="7" />
+            <span class="mm-chip" id="mmi-quality-label">7</span>
+          </div>
+          <p class="mm-hint">7 keeps photos crisp; 4–5 is fine for the web.</p>
+        </div>
+        <div data-mmshow="i" data-mmmethod="target" class="mm-sub hidden">
+          <div class="mm-slider-row">
+            <input type="number" id="mmi-targetkb" min="5" max="100000" step="5" value="200" /> <span class="mm-chip">KB</span>
+          </div>
+          <p class="mm-hint">Finds the quality that lands closest to your target (binary search).</p>
+        </div>
+
+        <details class="mm-advanced">
+          <summary>Advanced settings (optional)</summary>
+          <div class="mm-grid">
+            <label>Output format
+              <select id="mmi-format">
+                <option value="auto" selected>Auto (JPEG/WebP)</option>
+                <option value="jpeg">JPEG</option>
+                <option value="webp">WebP</option>
+              </select>
+            </label>
+            <label>Max dimension
+              <select id="mmi-maxdim">
+                <option value="0" selected>Keep original</option>
+                <option value="3840">4K (3840px)</option>
+                <option value="1920">1920px</option>
+                <option value="1280">1280px</option>
+                <option value="720">720px</option>
+              </select>
+            </label>
+          </div>
+          <p class="mm-hint">Transparent PNGs get a white background when converted to JPEG.</p>
+        </details>
+      </div>
+
+      <div class="mm-summary" id="mmi-summary"></div>
+      <div class="mm-queue" id="mmi-queue"></div>
+      <div class="mm-actionsrow">
+        <button type="button" class="btn btn-primary" id="mmi-go" disabled>Compress Now</button>
+        <button type="button" class="btn" id="mmi-zip" disabled>Download all (.zip)</button>
+        <button type="button" class="btn mm-ghost" id="mmi-clear">Clear list</button>
+      </div>
