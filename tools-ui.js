@@ -88,14 +88,14 @@
       accept: '.mp4,.webm,.mov,.mkv,.m4v', kind: 'video', multi: true,
       fields: [{ k: 'maxW', type: 'select', label: 'Max width', value: 1280, options: [[1920, '1920px (Full HD)'], [1280, '1280px (HD)'], [854, '854px (SD)'], [640, '640px']] }],
       run: (files, o, p) => zipOrSingle(files, (f, pp) => V.transformVideo(f, { maxW: o.maxW | 0 }, pp), p),
-      outName: (f) => `${MMT.baseName(f.name)}-${o.maxW}px.mp4`,
+      outName: (f, o) => `${MMT.baseName(f.name)}-${o.maxW}px.mp4`,
     },
     {
       id: 'speed-video', name: 'Change Speed', desc: '0.5× slow-mo to 2× fast.', cat: 'video', icon: 'ph-gauge',
       accept: '.mp4,.webm,.mov,.mkv,.m4v', kind: 'video', multi: false,
       fields: [{ k: 'speed', type: 'range', label: 'Speed', min: 0.5, max: 2, step: 0.05, value: 1, unit: '×' }],
       run: (files, o, p) => V.transformVideo(files[0], { speed: o.speed }, p),
-      outName: (f) => `${MMT.baseName(f.name)}-${o.speed}x.mp4`,
+      outName: (f, o) => `${MMT.baseName(f.name)}-${o.speed}x.mp4`,
     },
     {
       id: 'extract-audio', name: 'Extract Audio', desc: 'Pull the sound out of any video (M4A).', cat: 'audio', icon: 'ph-music-notes',
