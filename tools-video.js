@@ -79,7 +79,7 @@
           const vSink = new EncodedPacketSink(probe.v.track);
           try {
             const kp = await vSink.getKeyPacket(Math.max(0, want));
-            if (kp) snap = Math.max(placement, kp.timestamp); // ≥ placement, key-aligned
+            if (kp) snap = kp.timestamp; // raw track-local, key-aligned
           } catch { }
         }
         if (aSource && probe.a) {
