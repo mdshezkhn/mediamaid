@@ -158,7 +158,7 @@
       if (!aSource) {
         // speed≠1 (or packet copy unavailable): decode + stretch audio
         const sink = new AudioBufferSink(info.a.track);
-        audioBuffer = new AudioBufferSource();
+        audioBuffer = new AudioBufferSource({ codec: 'aac', bitrate: 128_000 });
         output.addAudioTrack(audioBuffer);
         (async () => {
           for await (const { buffer, timestamp } of sink.buffers()) {
