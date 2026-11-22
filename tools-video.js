@@ -31,49 +31,61 @@
     await output.start();
 
     const totalSingle = probes.reduce((s, p) => s + (p.duration || 0), 0);
-    const totalOut = Math.min(t1, t0 + totalSingle * loops) - t0;
-    let done = 0, firstV = true, firstA = true;
+    const span = Math.max(0.05, t1 - t0);
+    let firstV = true, firstA = true;
 
-    const copyRange = async (track, source, isFirst, isVideo, offset) => {
-      const cfg = await track.getDecoderConfig().catch(() => null);
+    // One copy of one probe. `snap` (raw track time) is where this copy starts:
+    // video snaps to the key packet at/before the requested point (stream-copy
+    // safety — the muxer rejects a non-key first packet), and BOTH tracks use
+    // the same snapped point so A/V stay in sync.
+    const copyRange = async (track, source, isFirst, isVideo, snap, placement, cfg) => {
       const sink = new EncodedPacketSink(track);
-      // start at the key packet at/before t0 when video (packet-copy safety)
       let startPacket = null;
       if (isVideo) {
-        try { startPacket = await sink.getKeyPacket(t0); } catch { startPacket = null; }
+        try { startPacket = await sink.getKeyPacket(snap); } catch { startPacket = null; }
+        if (!startPacket) return 0;
       }
-      let lastTs = -1, first = isFirst;
+      const stopAt = placement + span; // local timeline end
+      let lastTs = -1, first = isFirst, n = 0;
       const iter = startPacket ? sink.packets(startPacket) : sink.packets();
       for await (const packet of iter) {
-        const srcTs = packet.timestamp - offset;
-        if (srcTs < t0 - (isVideo ? 0.05 : 0)) continue;
-        if (srcTs > t1) break;
-        let newTs = srcTs - t0;
-        if (newTs < 0) newTs = 0;
+        if (packet.timestamp < snap - 0.001) continue;
+        let local = packet.timestamp - snap;
+        if (local > span) break;
+        let newTs = placement + local;
         if (newTs <= lastTs) newTs = lastTs + 0.001;
         lastTs = newTs;
-        const out = packet.clone({ timestamp: newTs });
         const opt = first && cfg ? { decoderConfig: cfg } : undefined;
-        if (isVideo) await source.add(out, opt); else await source.add(out, opt);
+        await source.add(packet.clone({ timestamp: newTs }), opt);
         first = false;
-        done += 1;
-        if (onProgress && (done & 31) === 0 && totalOut > 0) {
-          const p = Math.min(0.95, (lastTs + t0) / totalOut);
-          onProgress(p);
-        }
+        n += 1;
+        if (onProgress && (n & 31) === 0) onProgress(Math.min(0.95, newTs / (totalSingle * loops) || 0.9));
       }
+      return n;
     };
 
     for (let li = 0; li < loops; li++) {
       let prefix = 0;
       for (const probe of probes) {
-        const offset = li * totalSingle + prefix;
+        const placement = li * totalSingle + prefix;
         prefix += probe.duration || 0;
-        if (vSource && probe.v) await copyRange(probe.v.track, vSource, firstV, true, offset);
+        // requested local cut point for this copy
+        const want = placement + t0;
+        let snap = want;
+        let vCfg = null, aCfg = null, vSink = null;
+        if (vSource && probe.v) {
+          vCfg = await probe.v.track.getDecoderConfig().catch(() => null);
+          vSink = new EncodedPacketSink(probe.v.track);
+          try {
+            const kp = await vSink.getKeyPacket(Math.max(0, want));
+            if (kp) snap = Math.max(placement, kp.timestamp); // ≥ placement, key-aligned
+          } catch { }
+        }
+        if (vSource && probe.v) await copyRange(probe.v.track, vSource, firstV, true, snap, placement, vCfg);
         firstV = false;
-        if (aSource && probe.a) await copyRange(probe.a.track, aSource, firstA, false, offset);
+        if (aSource && probe.a) await copyRange(probe.a.track, aSource, firstA, false, snap, placement, aCfg);
         firstA = false;
-        if (onProgress) onProgress(Math.min(0.95, ((li + 1) * prefix) / (totalSingle * loops) || 0.9));
+        if (onProgress) onProgress(Math.min(0.95, placement + prefix / (totalSingle * loops) || 0.9));
       }
     }
 
