@@ -159,7 +159,7 @@
       id: 'resize-image', name: 'Resize Image', desc: 'Scale to a max dimension.', cat: 'image', icon: 'ph-frame-corners',
       accept: '.png,.jpg,.jpeg,.webp,.bmp,.gif', kind: 'image', multi: true,
       fields: [
-        { k: 'maxDim', type: 'select', label: 'Max dimension', value: 1280, options: [[3840, '3840px'], [1920, '1920px'], [1280, '1280px'], [800, '800px'], [400, '400px']] },
+        { k: 'maxDim', type: 'select', label: 'Max dimension', value: 1280, options: [[3840, '3840px'], [1920, '1920px'], [1280, '1280px'], [800, '800px'], [400, '400px'], [100, '100px (thumbnail)']] },
         { k: 'format', type: 'select', label: 'Format', value: 'jpeg', options: [['jpeg', 'JPG'], ['png', 'PNG'], ['webp', 'WebP']] },
       ],
       run: (files, o, p) => zipOrSingle(files, (f, pp) => D.resizeImage(f, o, pp), p),
